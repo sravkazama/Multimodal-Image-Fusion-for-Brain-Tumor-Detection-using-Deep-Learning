@@ -1,141 +1,81 @@
-# Multimodal-Image-Fusion-for-Brain-Tumor-Detection-using-Deep-Learning
-# Multimodal Image Fusion for Brain Tumor Detection Using Deep Learning
+## Multimodal Medical Image Fusion To Detect Brain Tumors 
 
-## Overview
+Images are the largest source of data in healthcare and, at the same time, one of the most difficult sources to analyze. Clinicians today must rely largely on medical image analysis performed by overworked radiologists and sometimes analyze scans themselves. Computer vision software based on the latest deep learning algorithms is already enabling the automated analysis to provide accurate results that are delivered immeasurably faster than the manual process can achieve. **Multimodal medical imaging** can provide us with separate yet complementary structure and function information of a patient study and hence has transformed the way we study living bodies. The motivation for multimodal imaging is to obtain a superior exquisite image that will provide accurate and reliable statistics than any single image while retaining the best functions for the snapshots software program for medically testing, diagnosing and curing diseases.
 
-This project implements an automated medical image analysis pipeline that utilizes multimodal image fusion to enhance brain tumor detection. By combining **Computed Tomography (CT)** and **Magnetic Resonance Imaging (MRI)** scans, the system leverages the complementary strengths of structural and functional imaging for improved diagnostic accuracy.
+Diagnostic tools include **Computed tomography (CT)** and **Magnetic resonance imaging (MRI)** and thus these are the two modalities that we will consider for Image Fusion Process. 
 
-The methodology integrates **image registration**, **deep learning-based fusion using transfer learning**, and **segmentation techniques** to detect brain tumors with greater clarity and precision.
+We aim to approach a three step process:
+1. Image Registeration
+2. Image Fusion
+3. Image Segmentation
 
----
+***
 
-## Objectives
+### Image Registration
+Image registration is the process of transforming images into a common coordinate system so corresponding pixels represent homologous biological points. Registration can be used to obtain an anatomically normalized reference frame in which brain regions from different patients can be compared.
+#### Landmark-Based Registration 
+Image landmark registration is a simple process where a number of points (landmarks) are defined on the same locations in two volumes. The landmarks are then matched by an algorithm, and the volumes are thus registered. The CT scan image is taken as the reference (fixed) image and the MRI scan image is aligned as per the points selected by the user.
 
-- To align (register) multimodal medical images into a common spatial framework.
-- To perform image fusion that combines CT and MRI scans for enriched visual information.
-- To apply deep learning (VGG-19) and wavelet transforms to generate a fused image.
-- To segment tumor regions using morphological algorithms for improved visualization and analysis.
-- To provide accessible interfaces via a Flask-based web GUI and a desktop application.
+1. **Python Notebook** -
+Navigate to `python scripts/Image Registration Process.ipynb` and select the CT and MRI Images.
+2. **GUI** -
+Setup Flask and install dependencies and run:
+`python app.py`
+Select the appropriate CT and MRI Images. The registered MRI Image gets saved in `static/mri_registered.jpg`
 
----
+***
 
-## Technologies and Frameworks
+### Image Fusion
 
-- **Programming Language:** Python  
-- **Deep Learning:** TensorFlow / Keras (VGG-19 Transfer Learning)  
-- **Image Processing:** OpenCV, Discrete Wavelet Transform (DWT), Watershed Algorithm  
-- **Visualization:** Matplotlib  
-- **User Interfaces:** Flask (Web), Tkinter (Desktop)  
-- **Development Environment:** Jupyter Notebooks, Python Scripts  
+**Architecture:**
+<img src='architecture/Image Fusion Process.png' />
 
----
+#### Transfer Learning
+Transfer learning is an optimization that allows rapid progress or improved performance when modeling the second task. We aim to use the **VGG-19 CNN** architecture with its pre-trained parameters which would help us to achieve our target. Visual Geometry Group (VGG-19) is a convolutional neural network that is trained on more than a million images from the ImageNet database. The network is 19 layers deep and can classify images into 1000 object categories.
 
-## Functional Workflow
+We convert our images to **YCbCr color format** because it preserves detailed information of luminance component.
 
-### 1. Image Registration
+#### Discrete Wavelet Transform
+Wavelet transform provides high frequency resolution at low frequencies and high time resolution at high frequencies. A discrete wavelet transform (DWT) is a wavelet transform for which the wavelets are discretely sampled. It captures both frequency and location information (location in time). 
 
-Aligns MRI and CT images by transforming them into a common coordinate space. A landmark-based registration method is employed, where reference points are selected manually to align the two modalities.
+#### Procedure
+1. Apply wavelet decomposition on CT image to generate approximate coefficient LL1 and three detail coefficients: LH1(horizontal), LV1(vertical), LD1(diagonal)
+2. Apply wavelet decomposition on MR image to generate approximate coefficient LL2 and three detail coefficients: LH2(horizontal), LV2(vertical), LD2(diagonal)
+3. Apply fusion based on VGG-19 network on four pairs: (LL1 and LL2), (LH1 and LH2), (LV1 and LV2) and (LD1 and LD2), to generate LL band, LH band, LV band and LD band.
+4. Apply inverse wavelet transform on the four bands generated in step 3 to obtain fused image.
 
-- **Output:** `mri_registered.jpg`
+#### Code
+1. **Python Notebook** -
+Navigate to `python scripts/Transfer_Learning.ipynb` and provide paths to registered set of MRI and CT Images.
+2. **GUI** -
+Setup Flask and install dependencies and run:
+`python app.py`
+In continuation to the above GUI approach the fused image gets saved in `static/fusion.jpg`
 
-> *Execute:*  
-> - Notebook: `Image Registration Process.ipynb`  
-> - Flask: `python app.py`
+***
 
----
+### Image Segmentation
 
-### 2. Image Fusion
+#### Watershed Algorithm
+Watershed segmentation is a region-based technique that utilizes image morphology. It requires selection of at least one marker (“seed” point) interior to each object of the image, including the background as a separate object. The markers are chosen by an operator or are provided by an automatic procedure that takes into account the application-specific knowledge of the objects. Once the objects are marked, they can be grown using a morphological watershed transformation
 
-Utilizes **VGG-19**, a pre-trained convolutional neural network, to guide the fusion process. Both images are converted to the YCbCr color space, and **Discrete Wavelet Transform (DWT)** is applied. Fusion is performed on each set of wavelet coefficients, followed by inverse DWT to generate the final fused image.
+#### Code
+1. **Python Notebook** -
+Navigate to `python scripts/Image Segmentation.ipynb` and provide paths to registered set of MRI and CT Images.
+2. **GUI** -
+Setup Flask and install dependencies and run:
+`python app.py`
+In continuation to the above GUI approach the fused image gets saved in `static/segmented.jpg`
 
-- **Output:** `fusion.jpg`
+***
 
-> *Execute:*  
-> - Notebook: `Transfer_Learning.ipynb`  
-> - Flask: `python app.py`
+#### Desktop Application
+All the above functionalities have also been implemented on a [Desktop Application](https://github.com/beccaboo-31/Multimodal-Image-Fusion-Desktop-App/) using Tkinter.
 
----
+***
+#### Contributors
+* [Aayush Parekh](https://github.com/aparekh7)
+* [Neha Patil](https://github.com/Nehaa03)
+* [Rebecca Biju](https://github.com/beccaboo-31)
+* [Ashna Shah](https://github.com/ashna111)
 
-### 3. Tumor Segmentation
-
-Applies the **Watershed Segmentation Algorithm** to detect and isolate tumor regions within the fused image. This method uses morphological operations and marker-based object detection for accurate segmentation.
-
-- **Output:** `segmented.jpg`
-
-> *Execute:*  
-> - Notebook: `Image Segmentation.ipynb`  
-> - Flask: `python app.py`
-
----
-
-### 4. Desktop Application
-
-A standalone desktop interface built using **Tkinter** integrates the full pipeline, allowing users to register, fuse, and segment medical images without a browser.
-
-> *Execute:*  
-> ```bash
-> python desktop_app.py
-> ```
-
----
-
-## Dataset
-
-This project can be tested using publicly available medical imaging datasets:
-
-- **BraTS (Brain Tumor Segmentation Challenge)**  
-  [https://www.med.upenn.edu/cbica/brats2020/](https://www.med.upenn.edu/cbica/brats2020/)
-
-Alternatively, CT and MRI brain images from open-source medical databases can be used.
-
----
-
-## Project Structure
-
-├── app.py # Web GUI using Flask
-├── desktop_app.py # Desktop GUI using Tkinter
-├── python scripts/
-│ ├── Image Registration Process.ipynb
-│ ├── Transfer_Learning.ipynb
-│ └── Image Segmentation.ipynb
-├── static/
-│ ├── mri_registered.jpg
-│ ├── fusion.jpg
-│ └── segmented.jpg
-├── data/
-│ ├── CT/
-│ └── MRI/
-└── README.md
-
----
-
-## Results
-
-- Enhanced detection of tumor boundaries and regions through multimodal fusion.
-- Improved clarity and contrast over single-modality imaging.
-- Accurate segmentation using classical morphological algorithms.
-
-Quantitative evaluation and performance metrics (e.g., PSNR, SSIM, Dice Coefficient) can be added based on the specific dataset used.
-
----
-
-## Installation and Usage
-
-### Prerequisites
-
-- Python ≥ 3.8  
-- Required libraries: `numpy`, `opencv-python`, `matplotlib`, `tensorflow`, `flask`, `tkinter`, etc.
-
-### Setup Instructions
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/multimodal-image-fusion-brain-tumor.git
-   cd multimodal-image-fusion-brain-tumor
-
-2. Install dependencies:
-    pip install -r requirements.txt
-3. Launch the Flask GUI:
-     python app.py
-4.Or, launch the Desktop App:
-  python desktop_app.py
